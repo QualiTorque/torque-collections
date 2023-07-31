@@ -24,9 +24,9 @@ author:
 
 EXAMPLES = r'''
 - name: Export outputs
-  torque.collections.export_torque_outputs:
+  export_torque_outputs:
     outputs: 
-      output1: "{{ result }}
+      output1: "{{ result }}"
 '''
 import json
 from ansible.module_utils.basic import AnsibleModule
