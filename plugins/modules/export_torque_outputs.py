@@ -24,7 +24,7 @@ author:
 
 EXAMPLES = r'''
 - name: Export outputs
-  export_torque_outputs:
+  torque.collections.export_torque_outputs:
     outputs: 
       output1: "{{ result }}"
 '''
