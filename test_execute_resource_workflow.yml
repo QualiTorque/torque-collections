@@ -1,0 +1,167 @@
+---
+- name: Test execute_resource_workflow module
+  hosts: localhost
+  gather_facts: false
+  vars:
+    # Test configuration - update these values for your environment
+    test_space: "03-Live"
+    test_environment: "Rr0LgPNF2j2C"
+    test_grain_fullname: "vcenter-win2012-template"
+    test_resource: "vsphere_virtual_machine.win-vm"
+    test_workflow_name: "vcenter-vm-power-on"
+    test_repository_name: "ProductionBPs"
+    test_owner_email: "leeor.v@quali.com"
+    test_api_url: "https://portal.qtorque.io"
+    
+    # Test inputs for the workflow
+    test_inputs:
+      VM Action: "Start"
+      
+  tasks:
+    - name: Test 1 - Execute workflow with minimal parameters
+      torque.collections.execute_resource_workflow:
+        space: "{{ test_space }}"
+        environment: "{{ test_environment }}"
+        grain_fullname: "{{ test_grain_fullname }}"
+        resource: "{{ test_resource }}"
+        workflow_name: "{{ test_workflow_name }}"
+        repository_name: "{{ test_repository_name }}"
+        owner_email: "{{ test_owner_email }}"
+        api_token:  "{{ ansible_env.TORQUE_API_TOKEN | default(omit) }}"
+      register: workflow_result_1
+      tags: [test1, minimal]
+      
+    - name: Display Test 1 results
+      debug:
+        var: workflow_result_1
+      tags: [test1, minimal]
+      
+    - name: Test 2 - Execute workflow with inputs
+      torque.collections.execute_resource_workflow:
+        space: "{{ test_space }}"
+        environment: "{{ test_environment }}"
+        grain_fullname: "{{ test_grain_fullname }}"
+        resource: "{{ test_resource }}"
+        workflow_name: "vcenter-vm-action"
+        repository_name: "{{ test_repository_name }}"
+        owner_email: "{{ test_owner_email }}"
+        inputs: "{{ test_inputs }}"
+        api_token: "{{ ansible_env.TORQUE_API_TOKEN | default(omit) }}"
+      register: workflow_result_2
+      tags: [test2, inputs]
+      
+    - name: Display Test 2 results
+      debug:
+        var: workflow_result_2
+      tags: [test2, inputs]
+      
+    - name: Test 3 - Execute workflow with custom execution name
+      torque.collections.execute_resource_workflow:
+        space: "{{ test_space }}"
+        environment: "{{ test_environment }}"
+        grain_fullname: "{{ test_grain_fullname }}"
+        resource: "{{ test_resource }}"
+        workflow_name: "{{ test_workflow_name }}"
+        repository_name: "{{ test_repository_name }}"
+        owner_email: "{{ test_owner_email }}"
+        inputs: "{{ test_inputs }}"
+        execution_name: "ansible-test-{{ ansible_date_time.epoch }}"
+        api_token: "{{ ansible_env.TORQUE_API_TOKEN | default(omit) }}"
+      register: workflow_result_3
+      tags: [test3, custom_name]
+      
+    - name: Display Test 3 results
+      debug:
+        var: workflow_result_3
+      tags: [test3, custom_name]
+      
+    - name: Test 4 - Execute workflow with custom API URL
+      torque.collections.execute_resource_workflow:
+        space: "{{ test_space }}"
+        environment: "{{ test_environment }}"
+        grain_fullname: "{{ test_grain_fullname }}"
+        resource: "{{ test_resource }}"
+        workflow_name: "{{ test_workflow_name }}"
+        repository_name: "{{ test_repository_name }}"
+        owner_email: "{{ test_owner_email }}"
+        api_url: "{{ test_api_url }}"
+        api_token: "{{ ansible_env.TORQUE_API_TOKEN | default(omit) }}"
+      register: workflow_result_4
+      tags: [test4, custom_url]
+      
+    - name: Display Test 4 results
+      debug:
+        var: workflow_result_4
+      tags: [test4, custom_url]
+      
+    - name: Test 5 - Check mode test
+      torque.collections.execute_resource_workflow:
+        space: "{{ test_space }}"
+        environment: "{{ test_environment }}"
+        grain_fullname: "{{ test_grain_fullname }}"
+        resource: "{{ test_resource }}"
+        workflow_name: "{{ test_workflow_name }}"
+        repository_name: "{{ test_repository_name }}"
+        owner_email: "{{ test_owner_email }}"
+        inputs: "{{ test_inputs }}"
+        api_token: "{{ ansible_env.TORQUE_API_TOKEN | default(omit) }}"
+      check_mode: true
+      register: workflow_result_5
+      tags: [test5, check_mode]
+      
+    - name: Display Test 5 results (check mode)
+      debug:
+        var: workflow_result_5
+      tags: [test5, check_mode]
+      
+    - name: Test 6 - Error handling test (invalid space)
+      torque.collections.execute_resource_workflow:
+        space: "invalid-space-name"
+        environment: "{{ test_environment }}"
+        grain_fullname: "{{ test_grain_fullname }}"
+        resource: "{{ test_resource }}"
+        workflow_name: "{{ test_workflow_name }}"
+        repository_name: "{{ test_repository_name }}"
+        owner_email: "{{ test_owner_email }}"
+        api_token: "{{ ansible_env.TORQUE_API_TOKEN | default(omit) }}"
+      register: workflow_result_6
+      ignore_errors: true
+      tags: [test6, error_handling]
+      
+    - name: Display Test 6 results (error handling)
+      debug:
+        var: workflow_result_6
+      tags: [test6, error_handling]
+      
+    - name: Verify error was caught in Test 6
+      assert:
+        that:
+          - workflow_result_6.failed == true
+        fail_msg: "Test 6 should have failed but didn't"
+        success_msg: "Test 6 correctly failed as expected"
+      tags: [test6, error_handling]
+
+    # Summary of all tests
+    - name: Test Summary
+      debug:
+        msg:
+          - "=== TEST SUMMARY ==="
+          - "Test 1 (Minimal): {{ 'PASSED' if not workflow_result_1.failed else 'FAILED' }}"
+          - "Test 2 (With Inputs): {{ 'PASSED' if not workflow_result_2.failed else 'FAILED' }}"
+          - "Test 3 (Custom Name): {{ 'PASSED' if not workflow_result_3.failed else 'FAILED' }}"
+          - "Test 4 (Custom URL): {{ 'PASSED' if not workflow_result_4.failed else 'FAILED' }}"
+          - "Test 5 (Check Mode): {{ 'PASSED' if not workflow_result_5.failed else 'FAILED' }}"
+          - "Test 6 (Error Handling): {{ 'PASSED' if workflow_result_6.failed else 'FAILED' }}"
+          - "=================="
+      tags: [summary]
+      
+    # Extract outputs if available
+    - name: Show workflow outputs (if any)
+      debug:
+        msg: 
+          - "Workflow outputs from successful tests:"
+          - "Test 1 outputs: {{ workflow_result_1.outputs | default('No outputs') }}"
+          - "Test 2 outputs: {{ workflow_result_2.outputs | default('No outputs') }}"
+          - "Test 3 outputs: {{ workflow_result_3.outputs | default('No outputs') }}"
+      when: not (workflow_result_1.failed | default(false)) or not (workflow_result_2.failed | default(false)) or not (workflow_result_3.failed | default(false))
+      tags: [outputs]

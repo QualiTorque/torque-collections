@@ -10,4 +10,4 @@
         grain_fullname: elk-2
         resource: aws_instance.elk_2
         action: aws-power-on-ec2-tf
-        api_token: xxx
+        api_token: dz1miQBjkG5w3He0T-S6MQWskM2c_sMO5LLZI_A_L6o

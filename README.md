@@ -46,6 +46,52 @@ Execute actions on resources within a Torque environment.
     action: restart-service
 ```
 
+### execute_resource_workflow
+
+Execute workflows on resources within a Torque environment.
+
+**Parameters:**
+- `space` (required): The Torque space name
+- `environment` (required): The environment ID within the space
+- `grain_fullname` (required): The grain full name path
+- `resource` (required): The resource identifier within the grain
+- `workflow_name` (required): The workflow/blueprint name to execute
+- `repository_name` (required): The repository name containing the workflow
+- `inputs` (optional): Key-value dictionary of inputs for the workflow
+- `owner_email` (required): Email address of the workflow owner
+- `execution_name` (optional): Custom execution name. If not provided, generates as "workflow_name__instantiation__{datetime}"
+- `api_token` (optional): Torque API token for authentication. If not provided, uses `TORQUE_API_TOKEN` environment variable
+- `api_url` (optional): Base URL for the Torque API (default: https://portal.qtorque.io)
+
+**Example Usage:**
+
+```yaml
+- name: Execute workflow on vCenter VM
+  torque.collections.execute_resource_workflow:
+    space: 03-Live
+    environment: Rr0LgPNF2j2C
+    grain_fullname: vcenter-win2012-template
+    resource: vsphere_virtual_machine.win-vm
+    workflow_name: vcenter-vm-power-on
+    repository_name: ProductionBPs
+    owner_email: admin@example.com
+    inputs:
+      vm_name: "test-vm"
+      cpu_count: 2
+    api_token: "{{ torque_api_token }}"
+
+- name: Execute workflow with custom execution name
+  torque.collections.execute_resource_workflow:
+    space: production
+    environment: env_12345
+    grain_fullname: web-server
+    resource: aws_instance.web_1
+    workflow_name: server-maintenance
+    repository_name: MaintenanceBPs
+    owner_email: devops@example.com
+    execution_name: "custom-maintenance-task-001"
+```
+
 ### export_torque_outputs
 
 Exports playbook outputs to a JSON file that Torque uses as grain outputs.
@@ -84,6 +130,7 @@ ansible-playbook your-playbook.yml
 
 ## Version History
 
+- **1.1.1**: Added `execute_resource_workflow` module for executing Torque workflows on resources
 - **1.1.0**: Added `execute_action` module for executing Torque actions on resources
 - **1.0.2**: Initial release with `export_torque_outputs` module
 

@@ -1,0 +1,47 @@
+# Test Configuration for execute_resource_workflow module
+# Copy this file to test_config.yml and update the values for your environment
+
+# Torque API Configuration
+torque_api_url: "https://portal.qtorque.io"
+torque_api_token: "{{ lookup('env', 'TORQUE_API_TOKEN') }}"
+
+# Test Environment Configuration
+test_space: "03-Live"
+test_environment: "Rr0LgPNF2j2C" 
+test_grain_fullname: "vcenter-win2012-template"
+test_resource: "vsphere_virtual_machine.win-vm"
+
+# Workflow Configuration
+test_workflow_name: "vcenter-vm-power-on"
+test_repository_name: "ProductionBPs"
+test_owner_email: "test@example.com"
+
+# Test Inputs
+test_inputs:
+  vm_name: "test-vm-ansible"
+  cpu_count: 2
+  memory_gb: 4
+  disk_size: 50
+
+# Alternative test scenarios
+test_scenarios:
+  scenario_1:
+    name: "Basic Power On Test"
+    workflow_name: "vcenter-vm-power-on"
+    inputs:
+      vm_name: "test-vm-1"
+      
+  scenario_2:
+    name: "Complex Deployment Test"  
+    workflow_name: "complex-deployment"
+    inputs:
+      application_name: "test-app"
+      environment_type: "staging"
+      replicas: 3
+      
+  scenario_3:
+    name: "Maintenance Workflow Test"
+    workflow_name: "maintenance-workflow"
+    inputs:
+      maintenance_type: "update"
+      downtime_window: "2h"
