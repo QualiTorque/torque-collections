@@ -1,0 +1,13 @@
+- name: run torque action
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: run torque action
+      torque.collections.execute_action:
+        space: 03-Live
+        environment: tuF7LfdwbCs4
+        grain_fullname: elk-2
+        resource: aws_instance.elk_2
+        action: aws-power-on-ec2-tf
+        api_token: xxx

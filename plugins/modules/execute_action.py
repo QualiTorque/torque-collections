@@ -110,7 +110,10 @@ def execute_torque_action(module, space, environment, grain_fullname, resource, 
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     }
-    
+
+    # Prepare request body
+    body = json.dumps({"force": False})
+
     # Make the API call
     try:
         response, info = fetch_url(
@@ -118,6 +121,7 @@ def execute_torque_action(module, space, environment, grain_fullname, resource, 
             url=url,
             method='POST',
             headers=headers,
+            data=body,
             timeout=30
         )
         
@@ -129,7 +133,7 @@ def execute_torque_action(module, space, environment, grain_fullname, resource, 
             except (ValueError, TypeError):
                 return True, {"status": "success", "message": "Action executed successfully"}, None
         else:
-            error_msg = f"API call failed with status {info['status']}"
+            error_msg = f"API call failed with status {info['status']} and message: {info.get('msg', '')}"
             try:
                 error_body = response.read().decode('utf-8') if response else info.get('body', '')
                 if error_body:
